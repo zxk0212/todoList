@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="js/自适应.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .body {
+            background-color: #efefef;
+            /* font-size: 0.16rem; */
+        }
+
+        .main {
+            width: 3.75rem;
+            /* background-color: rgb(112, 112, 112); */
+        }
+
+        .header{
+            width: 3.75rem;
+            height: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(47, 47, 47, 0.98);
+        }
+        
+        .header .logo {
+            width: 1rem;
+            line-height: .5rem;
+            font-size: .25rem;
+            color: #DDD;
+        }
+
+        .header input {
+            width: 2rem;
+            height: .24rem;
+            margin-top: .12rem;
+            border-radius: 5px;
+            margin: 0 .2rem;
+            border: none;
+            text-indent: 10px;
+            box-shadow: 0 1px 0 rgba(255,255,255,0.24), 0 1px 6px rgba(0,0,0,0.45) inset;
+        }
+
+        .todo h3 {
+            height: .6rem;
+            line-height: .6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 .1rem;
+            font-size: .25rem;
+        }
+        
+        .list li {
+            display: flex;
+            height: .3rem;
+            line-height: .3rem;
+            font-size: .16rem;
+            background-color: skyblue;
+            margin: 0.05rem .1rem;
+            border-radius: 3px;
+            padding: 0 10px;
+            align-items: center;
+            border-left: .05rem solid ;
+        }
+
+        .doingList input {
+            width: .2rem;
+            height: .2rem;
+            margin: 0 .1rem;
+        }
+        .doingList p {
+            width: 2.6rem;
+        }
+
+        .del {
+            background-color: orangered;
+            width: 0.4rem;
+            height: 0.2rem;
+            font-size: 0.12rem;
+            line-height: 0.2rem;
+            text-align: center;
+            border-radius: 0.1rem;
+            margin: 0 0.1rem;
+        }
+        
+        .doneList {
+            opacity: 0.3;
+        }
+        
+        .doneList input {
+            width: .2rem;
+            height: .2rem;
+            margin: 0 .1rem;
+        }
+        .doneList p {
+            width: 2.6rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="header">
+            <div class="logo">ToDoList</div>
+            <input type="text" id="input" placeholder="请输入待办任务">
+        </div>
+        <div class="doing todo">
+            <h3><span class="title">正在进行</span><span class="num">0</span></h3>
+            <div class="list">
+                <ul class="doingList">
+                   
+                </ul>
+                
+            </div>
+        </div>
+        <div class="done todo">
+            <h3><span class="title">正在进行</span><span class="num">0</span></h3>
+            <div class="list">
+                <ul class="doneList">
+                   
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        var inputDom = document.querySelector('#input');
+        var main = document.querySelector(".main");
+        var doingList = document.querySelector('.doingList');
+        var doneList = document.querySelector('.doneList');
+
+        // 设定一个全局变量，把代办事件放入这个变量保存
+        if(localStorage.todoList==undefined){
+            var todoList = [];
+        }else{
+            var todoList = JSON.parse(localStorage.todoList);
+            render(todoList);
+        }
+        
+
+        
+
+        inputDom.onkeydown = function(){
+            if(event.key=='Enter'){
+                var objItem = {
+                    content: inputDom.value,
+                    isDone:false
+                }
+                todoList.push(objItem);
+                console.log(todoList)
+                render(todoList);
+                // add.innerHTML = `<input type="checkbox" name="" id="">
+                //         <p>`+inputDom.value+`</p>
+                //         <div class="del">删除</div>`
+            }
+        }    
+
+        doingList.onchange = function(e){
+            var index = e.target.dataset.index;
+            todoList[index].isDone = true;
+            render(todoList);
+            // console.log(todoList[index].isDone);
+        }
+        doneList.onchange = function(e){
+            var index = e.target.dataset.index;
+            todoList[index].isDone = false;
+            render(todoList);
+            // console.log(todoList[index].isDone);
+        }
+
+        main.onclick = function(e){
+            var index = parseInt(e.target.dataset.index);
+            if(e.target.className == "del"){
+                todoList.splice(index,1);
+                render(todoList);
+            }
+        }
+
+        function render(todoList){
+                    doingList.innerHTML = "";
+                    doneList.innerHTML = "";
+                    todoList.forEach(function(item,index){
+                        var add = document.createElement('li');
+                        if(item.isDone){
+                            add.innerHTML = `<input type="checkbox" checked="checked" name="" id="" data-index="${index}">
+                            <p>`+item.content+`</p>
+                            <div class="del" data-index="${index}">删除</div>`;
+                            doneList.appendChild(add);
+                        }
+                        else{
+                            add.innerHTML = `<input type="checkbox" name="" id="" data-index="${index}">
+                            <p>`+item.content+`</p>
+                            <div class="del" data-index="${index}">删除</div>`;
+                            doingList.appendChild(add);
+                        }
+                        
+                        // console.log(event);
+                    });
+                    inputDom.value = '';
+                    //将对象转化为JSON格式的字符串
+                    
+                    localStorage.todoList = JSON.stringify(todoList);
+        }
+    </script>
+    <script>
+        (function(){
+	function adapt(){
+		var html = document.querySelector('html')
+		var userAgent = navigator.userAgent
+		//userAgent.indexOf("iPhone"),通过此方法可以获取iphone在字符中的索引值
+		html.className = "";
+		if(userAgent.indexOf("iPhone")!=-1){
+			//console.log(iphone)
+			html.classList.add("iphone")
+		}else if(userAgent.indexOf("Android")!=-1){
+			//console.log(iphone)
+			html.classList.add("android")
+		}else if(userAgent.indexOf("iPad")!=-1){
+			//console.log(iphone)
+			html.classList.add("ipad")
+		}else{
+			html.classList.add("pc")
+		}
+		
+		//作业:window.innerWidth,可以获取窗口的宽度,所以可以根据窗口的宽度,来设定html的样式(lt640,lt960,lt1200,gt640,gt960,gt1200)
+		if(window.innerWidth<640){
+			html.classList.add('lt640');
+			html.classList.add("lt960")
+			html.classList.add("lt1200")
+		}else if(window.innerWidth<960){
+			html.classList.add("lt960")
+			html.classList.add("lt1200")
+			html.classList.add("gt640")
+		}else if(window.innerWidth<1200){
+			html.classList.add("gt960")
+			html.classList.add("lt1200")
+			html.classList.add("gt640")
+		}else{
+			html.classList.add("gt960")
+			html.classList.add("gt1200")
+			html.classList.add("gt640")
+		}
+		
+		//rem布局
+		var screenWidth = window.innerWidth;
+		var danwei = screenWidth/3.75;//屏幕的宽度/设计稿占满全屏的宽度为多少rem
+		var html = document.querySelector("html")
+		html.style.fontSize = danwei + 'px';
+		
+	}
+	adapt()
+	
+	window.onresize = function(){
+		adapt()
+	}
+})()
+    </script>
+</body>
+</html>
